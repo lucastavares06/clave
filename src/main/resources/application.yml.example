@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: clave  # Application name (optional, can be used for logging or service discovery)
+
+  datasource:
+    url: jdbc:postgresql://<host>:<port>/<database>?sslmode=require
+    # Replace <host>, <port> and <database> with your PostgreSQL connection details
+    username: ${DB_USERNAME}  # Database username (set in your environment)
+    password: ${DB_PASSWORD}  # Database password (set in your environment)
+
+  jpa:
+    show-sql: true  # Shows SQL queries in the console (for debugging purposes)
+    open-in-view: false
+    hibernate:
+      ddl-auto: create  # Schema generation strategy (use 'update', 'validate', or 'none' in production)
+    properties:
+      hibernate.format_sql: true  # Formats the SQL queries in logs (makes them more readable)
+
+jwt:
+  secret: ${JWT_SECRET}  # JWT secret key used to sign and validate tokens
+  expiration: 86400000   # Token expiration time in milliseconds (e.g. 86400000 = 24 hours)
