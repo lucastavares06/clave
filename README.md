@@ -6,12 +6,12 @@
 - **PostgreSQL** (via Supabase in this example)
 - **JWT**-based token authentication
 
-It currently provides two main endpoints:
-1. **Sign Up** – Create a new account (`POST api/v1/auth/signup`)
-2. **Log In** – Authenticate (`POST api/v1/auth/login`)
+It currently provides the following endpoints:
+1. **Sign Up** – Initiate user registration (`POST /api/v1/auth/signup`)
+2. **Confirm Account** – Activate the account via email token (`GET /api/v1/auth/confirm?token=...`)
+3. **Log In** – Authenticate (`POST /api/v1/auth/login`)
 
 Future additions will include:
-- Email validation using **Java Mail Sender**
 - Password reset functionality
 
 ---
@@ -20,7 +20,8 @@ Future additions will include:
 - **Spring Security** for handling authentication/authorization
 - **JWT** for stateless session management
 - **Spring Data JPA** for database interactions
-- **application.yml** example for easy environment configuration
+- **Java Mail Sender** for email confirmation
+- `application.yml.example` for easy environment configuration
 
 ---
 
@@ -37,8 +38,8 @@ Future additions will include:
    ```
 
 3. **Configure environment**:
-    - Copy `application.yml.example` to `application.yml` (or set up your own configuration file).
-    - Update database connection details, JWT secret, and other configurations as needed.
+   - Copy `application.yml.example` to `application.yml`.
+   - Update database connection details, JWT secret, and mail credentials.
 
 4. **Build and run**:
    ```bash
@@ -51,26 +52,40 @@ Future additions will include:
 
 ## Endpoints
 
-### Sign Up
-Create a new account:
+### Sign Up (Step 1)
+Initiate account registration:
 ```http
-POST api/v1/auth/signup
+POST /api/v1/auth/signup
 ```
 **Request body**:
 ```json
 {
   "name": "Lucas Tavares",
   "email": "lucas@email.com",
-  "password": "secret"
+  "password": "secret",
+  "role": "USER"
 }
 ```
 **Response**:
-- HTTP `201 CREATED` on success, returning a JSON body with user info or a confirmation.
+- HTTP `201 Created` with a message confirming that an email was sent.
+
+---
+
+### Confirm Account (Step 2)
+Confirm the account using the token received by email:
+```http
+GET /api/v1/auth/confirm?token=abc123
+```
+**Response**:
+- HTTP `200 OK` with user info if valid.
+- HTTP `410 Gone` if token is expired or invalid.
+
+---
 
 ### Log In
-Authenticate with existing credentials:
+Authenticate with confirmed credentials:
 ```http
-POST api/v1/auth/login
+POST /api/v1/auth/login
 ```
 **Request body**:
 ```json
@@ -80,7 +95,7 @@ POST api/v1/auth/login
 }
 ```
 **Response**:
-- HTTP `200 OK` on success, returning a JSON body containing the JWT token.
+- HTTP `200 OK` on success, returning a JSON with the JWT token.
 
 ---
 
@@ -104,18 +119,35 @@ spring:
     properties:
       hibernate.format_sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+email:
+  from: ${EMAIL_USERNAME}
+  sender-name: Clave
+  base-confirm-url: http://localhost:8080/api/v1/auth/confirm?token=
+
 jwt:
-  secret: ${JWT_SECRET}     # JWT secret key
-  expiration: 86400000      # 24 hours in milliseconds
+  secret: ${JWT_SECRET}
+  expiration: 86400000
 ```
 
-> **Note:** Replace `<host>`, `<port>`, and `<database>` with your actual PostgreSQL settings. For production, consider changing `ddl-auto` to `validate` or `update` (or another preferred strategy).
+> **Note:** Replace placeholders with real values. In production, use `ddl-auto: validate` or `update` instead of `create`.
 
 ---
 
 ## Entity Overview
 
-Below is the `User` entity, showcasing the fields used during signup (and in future functionalities like password resets):
+Below is the `User` entity, showcasing the fields used during signup:
 
 ```java
 @Entity
@@ -144,9 +176,10 @@ public class User {
 ---
 
 ## Future Enhancements
-- **Email Validation:** Send a confirmation link using Java Mail Sender.
-- **Password Reset:** Securely handle forgotten passwords.
-- Additional security layers and refined logging.
+- **Password Reset**: Securely handle forgotten passwords.
+- **OAuth**: Optional social login.
+- **Account Locking**: After multiple failed login attempts.
+- Better email templates and branding.
 
 ---
 
@@ -159,7 +192,7 @@ Feel free to open issues or submit pull requests for improvements, bug fixes, or
 
 This project is licensed under the [MIT License](LICENSE).
 
-
 ---
 
-Thank you for using this project. If you have questions or suggestions, feel free to open an issue.
+Thanks for checking out Clave! If you have questions or suggestions, feel free to open an issue. 🚀
+
