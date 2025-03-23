@@ -1,9 +1,9 @@
 package com.lucas.clave.auth.account;
 
-import com.lucas.clave.auth.account.model.LoginRequest;
-import com.lucas.clave.auth.account.model.LoginResponse;
-import com.lucas.clave.auth.account.model.SignupRequest;
-import com.lucas.clave.auth.account.model.SignupResponse;
+import com.lucas.clave.auth.account.model.*;
+import com.lucas.clave.auth.email.EmailProperties;
+import com.lucas.clave.auth.email.EmailService;
+import com.lucas.clave.auth.email.model.EmailConfirmationSend;
 import com.lucas.clave.auth.jwt.JwtService;
 import com.lucas.clave.auth.user.UserService;
 import com.lucas.clave.auth.user.entity.User;
@@ -14,11 +14,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
     private final UserService userService;
+    private final PendingUserService pendingUserService;
+    private final EmailService emailService;
+    private final EmailProperties emailProperties;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
@@ -30,22 +35,56 @@ public class AccountService {
                 )
         );
 
-        return new LoginResponse(
-                jwtService.generateToken(request.getEmail())
-        );
+        return new LoginResponse(jwtService.generateToken(request.getEmail()));
     }
 
-    public SignupResponse signup(SignupRequest request) {
+    public SignupInitResponse signup(SignupRequest request) {
         if (userService.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado.");
         }
+        if (pendingUserService.existsByEmail(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este e-mail já está aguardando confirmação.");
+        }
 
-        User createdUser = userService.create(request);
+        var pendingUser = pendingUserService.create(request);
+        var confirmUrl = emailProperties.getBaseConfirmUrl() + pendingUser.getToken();
+
+        String body = String.format(
+                "Olá %s,\n\nClique no link abaixo para confirmar seu cadastro:\n\n%s",
+                pendingUser.getName(),
+                confirmUrl
+        );
+
+        emailService.send(new EmailConfirmationSend(
+                pendingUser.getEmail(),
+                "Confirmação de cadastro - Clave",
+                body
+        ));
+
+        return new SignupInitResponse("E-mail de confirmação enviado. Verifique sua caixa de entrada.");
+    }
+
+    public SignupResponse confirmAccount(String token) {
+        var pendingUser = pendingUserService.findByToken(token);
+
+        if (pendingUser.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.GONE, "Token expirado.");
+        }
+
+        SignupRequest signupRequest = new SignupRequest(
+                pendingUser.getName(),
+                pendingUser.getEmail(),
+                pendingUser.getPassword(),
+                pendingUser.getRole()
+        );
+
+        User user = userService.create(signupRequest);
+        pendingUserService.delete(pendingUser);
 
         return new SignupResponse(
-                createdUser.getId(),
-                createdUser.getName(),
-                createdUser.getEmail()
+                user.getId(),
+                user.getName(),
+                user.getEmail()
         );
     }
 }

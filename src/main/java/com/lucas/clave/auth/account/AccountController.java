@@ -1,9 +1,6 @@
 package com.lucas.clave.auth.account;
 
-import com.lucas.clave.auth.account.model.LoginRequest;
-import com.lucas.clave.auth.account.model.LoginResponse;
-import com.lucas.clave.auth.account.model.SignupRequest;
-import com.lucas.clave.auth.account.model.SignupResponse;
+import com.lucas.clave.auth.account.model.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +22,12 @@ public class AccountController {
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public SignupResponse signup(@Valid @RequestBody SignupRequest request) {
+    public SignupInitResponse signup(@Valid @RequestBody SignupRequest request) {
         return accountService.signup(request);
+    }
+
+    @GetMapping("/confirm")
+    public SignupResponse confirmAccount(@RequestParam String token) {
+        return accountService.confirmAccount(token);
     }
 }
