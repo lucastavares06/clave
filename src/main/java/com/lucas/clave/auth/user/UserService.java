@@ -3,7 +3,6 @@ package com.lucas.clave.auth.user;
 import com.lucas.clave.auth.user.entity.User;
 import com.lucas.clave.auth.user.model.UserCreate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,13 +10,13 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
+    // Password must be already encoded before calling this method
     public User create(UserCreate userCreate) {
         User user = User.builder()
                 .name(userCreate.getName())
                 .email(userCreate.getEmail())
-                .password(passwordEncoder.encode(userCreate.getPassword()))
+                .password(userCreate.getPassword())
                 .role(userCreate.getRole())
                 .build();
 
