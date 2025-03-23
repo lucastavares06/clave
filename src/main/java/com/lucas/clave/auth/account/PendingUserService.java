@@ -2,7 +2,6 @@ package com.lucas.clave.auth.account;
 
 import com.lucas.clave.auth.account.entity.PendingUser;
 import com.lucas.clave.auth.account.model.SignupRequest;
-import com.lucas.clave.auth.user.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
