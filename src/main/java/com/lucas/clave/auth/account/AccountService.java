@@ -7,6 +7,7 @@ import com.lucas.clave.auth.account.model.SignupResponse;
 import com.lucas.clave.auth.jwt.JwtService;
 import com.lucas.clave.auth.user.UserService;
 import com.lucas.clave.auth.user.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,21 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class AccountService {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-
-    public AccountService(
-            UserService userService,
-            AuthenticationManager authenticationManager,
-            JwtService jwtService
-    ) {
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-    }
 
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
