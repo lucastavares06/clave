@@ -19,3 +19,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET}  # JWT secret key used to sign and validate tokens
   expiration: 86400000   # Token expiration time in milliseconds (e.g. 86400000 = 24 hours)
+
+email:
+  from: ${MAIL_FROM}  # E-mail address that appears as the sender
+  sender-name: Clave  # Name shown in email clients
+  base-confirm-url: http://localhost:8080/api/v1/auth/confirm?token=  # Confirmation URL sent by email
