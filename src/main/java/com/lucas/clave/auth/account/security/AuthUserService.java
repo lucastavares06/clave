@@ -1,6 +1,5 @@
 package com.lucas.clave.auth.account.security;
 
-import com.lucas.clave.auth.user.UserRepository;
 import com.lucas.clave.auth.user.UserService;
 import com.lucas.clave.auth.user.entity.User;
 import lombok.RequiredArgsConstructor;
