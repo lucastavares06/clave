@@ -35,7 +35,10 @@ public class AccountService {
                 )
         );
 
-        return new LoginResponse(jwtService.generateToken(request.getEmail()));
+        String accessToken = jwtService.generateAccessToken(request.getEmail());
+        String refreshToken = jwtService.generateRefreshToken(request.getEmail());
+
+        return new LoginResponse(accessToken, refreshToken);
     }
 
     public SignupInitResponse signup(SignupRequest request) {
@@ -86,5 +89,23 @@ public class AccountService {
                 user.getName(),
                 user.getEmail()
         );
+    }
+
+    public LoginResponse refreshToken(TokenRefreshRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtService.isRefreshTokenValid(refreshToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido ou expirado");
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
+
+        userService.findByEmail(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+
+        String newAccessToken = jwtService.generateAccessToken(username);
+        String newRefreshToken = jwtService.generateRefreshToken(username);
+
+        return new LoginResponse(newAccessToken, newRefreshToken);
     }
 }

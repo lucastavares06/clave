@@ -30,4 +30,9 @@ public class AccountController {
     public SignupResponse confirmAccount(@RequestParam String token) {
         return accountService.confirmAccount(token);
     }
+
+    @PostMapping("/refresh")
+    public LoginResponse refresh(@Valid @RequestBody TokenRefreshRequest request) {
+        return accountService.refreshToken(request);
+    }
 }
