@@ -19,13 +19,20 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
     }
 
-    public String generateToken(String username) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
-                .signWith(getSigningKey())
-                .compact();
+    public String generateAccessToken(String username) {
+        return buildToken(username, jwtProperties.getExpiration());
+    }
+
+    public String generateRefreshToken(String username) {
+        return buildToken(username, jwtProperties.getRefreshExpiration());
+    }
+
+    public boolean isAccessTokenValid(String token) {
+        return isTokenValid(token);
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        return isTokenValid(token);
     }
 
     public String extractUsername(String token) {
@@ -37,7 +44,16 @@ public class JwtService {
                 .getSubject();
     }
 
-    public boolean isTokenValid(String token) {
+    private String buildToken(String username, long expiration) {
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    private boolean isTokenValid(String token) {
         try {
             Jwts.parser()
                     .verifyWith(getSigningKey())
