@@ -5,6 +5,8 @@ import com.lucas.clave.auth.user.model.UserCreate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -21,6 +23,10 @@ public class UserService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public boolean existsByEmail(String email) {
