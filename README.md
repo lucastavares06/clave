@@ -10,6 +10,7 @@ It currently provides the following endpoints:
 1. **Sign Up** – Initiate user registration (`POST /api/v1/auth/signup`)
 2. **Confirm Account** – Activate the account via email token (`GET /api/v1/auth/confirm?token=...`)
 3. **Log In** – Authenticate (`POST /api/v1/auth/login`)
+4. **Refresh Token** – Renew access without re-authenticating (`POST /api/v1/auth/refresh`)
 
 Future additions will include:
 - Password reset functionality
@@ -19,6 +20,7 @@ Future additions will include:
 ## Features
 - **Spring Security** for handling authentication/authorization
 - **JWT** for stateless session management
+- **Refresh Token** support for persistent sessions
 - **Spring Data JPA** for database interactions
 - **Java Mail Sender** for email confirmation
 - `application.yml.example` for easy environment configuration
@@ -52,12 +54,13 @@ Future additions will include:
 
 ## Endpoints
 
-### Sign Up (Step 1)
-Initiate account registration:
+### 📋 Sign Up (Step 1)
+
 ```http
 POST /api/v1/auth/signup
 ```
-**Request body**:
+
+**Request**:
 ```json
 {
   "name": "Lucas Tavares",
@@ -66,36 +69,73 @@ POST /api/v1/auth/signup
   "role": "USER"
 }
 ```
+
 **Response**:
 - HTTP `201 Created` with a message confirming that an email was sent.
 
 ---
 
-### Confirm Account (Step 2)
-Confirm the account using the token received by email:
+### ✅ Confirm Account (Step 2)
+
 ```http
 GET /api/v1/auth/confirm?token=abc123
 ```
+
 **Response**:
 - HTTP `200 OK` with user info if valid.
 - HTTP `410 Gone` if token is expired or invalid.
 
 ---
 
-### Log In
-Authenticate with confirmed credentials:
+### 🔐 Log In
+
 ```http
 POST /api/v1/auth/login
 ```
-**Request body**:
+
+**Request**:
 ```json
 {
   "email": "lucas@email.com",
   "password": "secret"
 }
 ```
+
 **Response**:
-- HTTP `200 OK` on success, returning a JSON with the JWT token.
+```json
+{
+  "accessToken": "jwt-access-token",
+  "refreshToken": "jwt-refresh-token"
+}
+```
+
+---
+
+### 🔄 Refresh Token
+
+```http
+POST /api/v1/auth/refresh
+```
+
+**Request**:
+```json
+{
+  "refreshToken": "your-valid-refresh-token"
+}
+```
+
+**Response**:
+```json
+{
+  "accessToken": "new-access-token",
+  "refreshToken": "new-refresh-token"
+}
+```
+
+**Notes**:
+- The `refreshToken` has a longer expiration (default: 7 days).
+- A new token pair is returned on each valid request.
+- Invalid or expired tokens return `401 Unauthorized`.
 
 ---
 
@@ -138,10 +178,11 @@ email:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: 86400000
+  expiration: 86400000           # 1 day
+  refresh-expiration: 604800000  # 7 days
 ```
 
-> **Note:** Replace placeholders with real values. In production, use `ddl-auto: validate` or `update` instead of `create`.
+> **Note**: Replace placeholders with real values. In production, use `ddl-auto: validate` or `update` instead of `create`.
 
 ---
 
@@ -176,14 +217,15 @@ public class User {
 ---
 
 ## Future Enhancements
-- **Password Reset**: Securely handle forgotten passwords.
-- **OAuth**: Optional social login.
-- **Account Locking**: After multiple failed login attempts.
-- Better email templates and branding.
+- **Password Reset**: Securely handle forgotten passwords
+- **OAuth**: Optional social login
+- **Account Locking**: After multiple failed login attempts
+- Better email templates and branding
 
 ---
 
 ## Contributing
+
 Feel free to open issues or submit pull requests for improvements, bug fixes, or new features.
 
 ---
