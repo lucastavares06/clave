@@ -19,6 +19,7 @@ spring:
 jwt:
   secret: ${JWT_SECRET}  # JWT secret key used to sign and validate tokens
   expiration: 86400000   # Token expiration time in milliseconds (e.g. 86400000 = 24 hours)
+  refresh-expiration: 604800000
 
 email:
   from: ${MAIL_FROM}  # E-mail address that appears as the sender
