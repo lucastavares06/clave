@@ -1,6 +1,8 @@
 package com.lucas.clave.common.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,9 +16,11 @@ import java.time.Instant;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private final HttpServletRequest request;
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -39,7 +43,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleBadCredentials(BadCredentialsException ex) {
+    public ErrorResponse handleBadCredentials() {
+        String clientIp = request.getRemoteAddr();
+        logger.warn("Tentativa de login inválido detectada do IP: {}", clientIp);
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.");
     }
 
@@ -49,9 +55,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.valueOf(ex.getStatusCode().value()),
                 ex.getReason()
         );
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
