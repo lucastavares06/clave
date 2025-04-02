@@ -54,7 +54,7 @@ Future additions will include:
 
 ## Endpoints
 
-### 📋 Sign Up (Step 1)
+### Sign Up (Step 1)
 
 ```http
 POST /api/v1/auth/signup
@@ -75,7 +75,7 @@ POST /api/v1/auth/signup
 
 ---
 
-### ✅ Confirm Account (Step 2)
+### Confirm Account (Step 2)
 
 ```http
 GET /api/v1/auth/confirm?token=abc123
@@ -87,7 +87,7 @@ GET /api/v1/auth/confirm?token=abc123
 
 ---
 
-### 🔐 Log In
+### Log In
 
 ```http
 POST /api/v1/auth/login
@@ -111,7 +111,7 @@ POST /api/v1/auth/login
 
 ---
 
-### 🔄 Refresh Token
+### Refresh Token
 
 ```http
 POST /api/v1/auth/refresh
