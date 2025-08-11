@@ -1,27 +1,39 @@
 spring:
   application:
-    name: clave  # Application name (optional, can be used for logging or service discovery)
+    name: my-app  # Application name (optional, used for logging or service discovery)
 
   datasource:
     url: jdbc:postgresql://<host>:<port>/<database>?sslmode=require
     # Replace <host>, <port> and <database> with your PostgreSQL connection details
-    username: ${DB_USERNAME}  # Database username (set in your environment)
-    password: ${DB_PASSWORD}  # Database password (set in your environment)
+    username: ${DB_USERNAME}  # Database username (set in your environment variables)
+    password: ${DB_PASSWORD}  # Database password (set in your environment variables)
 
   jpa:
-    show-sql: true  # Shows SQL queries in the console (for debugging purposes)
+    show-sql: true  # Shows SQL queries in the console (useful for debugging)
     open-in-view: false
     hibernate:
-      ddl-auto: create  # Schema generation strategy (use 'update', 'validate', or 'none' in production)
+      ddl-auto: update  # Schema generation strategy ('update', 'validate', 'none' recommended for production)
     properties:
-      hibernate.format_sql: true  # Formats the SQL queries in logs (makes them more readable)
+      hibernate.format_sql: true  # Formats SQL output in logs for better readability
+
+  mail:
+    host: smtp.example.com  # SMTP server (e.g., smtp.gmail.com)
+    port: 587               # Port for STARTTLS (use 465 for SSL)
+    username: your_email@example.com
+    password: your_generated_app_password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true  # Enable STARTTLS for secure connections
 
 jwt:
-  secret: ${JWT_SECRET}  # JWT secret key used to sign and validate tokens
-  expiration: 86400000   # Token expiration time in milliseconds (e.g. 86400000 = 24 hours)
-  refresh-expiration: 604800000
+  secret: ${JWT_SECRET}  # Secret key to sign and validate JWT tokens
+  expiration: 86400000   # Token expiration in ms (86400000 = 24h)
+  refresh-expiration: 604800000  # Refresh token expiration in ms (7 days)
 
 email:
-  from: ${MAIL_FROM}  # E-mail address that appears as the sender
-  sender-name: Clave  # Name shown in email clients
-  base-confirm-url: http://localhost:8080/api/v1/auth/confirm?token=  # Confirmation URL sent by email
+  from: ${MAIL_FROM}       # Sender email address
+  sender-name: My App      # Sender name shown in email clients
+  base-confirm-url: http://localhost:8080/api/v1/auth/confirm?token=  # Base URL for email confirmation links
