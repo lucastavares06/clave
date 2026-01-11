@@ -3,14 +3,14 @@
 **Clave** is a minimal, end-to-end authentication system built with:
 - **Java 21**
 - **Spring Boot**
-- **PostgreSQL** (via Supabase in this example)
+- **PostgreSQL**
 - **JWT**-based token authentication
 
 It currently provides the following endpoints:
-1. **Sign Up** – Initiate user registration (`POST /api/v1/auth/signup`)
-2. **Confirm Account** – Activate the account via email token (`GET /api/v1/auth/confirm?token=...`)
-3. **Log In** – Authenticate (`POST /api/v1/auth/login`)
-4. **Refresh Token** – Renew access without re-authenticating (`POST /api/v1/auth/refresh`)
+1. **Sign Up** - Initiate user registration (`POST /api/v1/auth/signup`)
+2. **Confirm Account** - Activate the account via email token (`GET /api/v1/auth/confirm?token=...`)
+3. **Log In** - Authenticate (`POST /api/v1/auth/login`)
+4. **Refresh Token** - Renew access without re-authenticating (`POST /api/v1/auth/refresh`)
 
 Future additions will include:
 - Password reset functionality
